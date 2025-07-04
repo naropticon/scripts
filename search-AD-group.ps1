@@ -1,3 +1,6 @@
+# Használat powershellből:
+# powershell -ExecutionPolicy Bypass -File .\keres-csoportok.ps1
+
 # Módosítsd ezt a változót arra, amivel kezdődik a keresett csoportnév
 $keresettEleje = "dev"
 
