@@ -10,7 +10,7 @@ cp "$yaml_file" "$tmp_file"
 while read -r valtozo; do
     # keresd meg az első sor számát, ahol ez a változó szerepel
     match_line=$(grep -n "$valtozo" "$tmp_file" | head -n1 | cut -d: -f1)
-    
+
     # ha nincs találat, menj tovább
     [[ -z "$match_line" ]] && continue
 
@@ -20,7 +20,7 @@ while read -r valtozo; do
     # csak akkor módosítsuk, ha azon a soron valóban emailto szerepel
     current_line=$(sed -n "${target_line}p" "$tmp_file")
     if [[ "$current_line" == *"emailto:"* ]]; then
-        sed -i "${target_line}s/emailto: .*/emailto: ${valtozo}@gmail.com/" "$tmp_file"
+        sed -i "${target_line}s/emailto: .*/emailto: uj@mail.hu/" "$tmp_file"
     fi
 
 done < "$valami_file"
