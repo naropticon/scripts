@@ -6,21 +6,29 @@ tmp_file="tmp.yaml"
 
 cp "$yaml_file" "$tmp_file"
 
-# sorok bejárása a valami fájlból
-while read -r valtozo; do
-    # keresd meg az első sor számát, ahol ez a változó szerepel
-    match_line=$(grep -n "$valtozo" "$tmp_file" | head -n1 | cut -d: -f1)
+# beolvassuk a valami fájl szavait tömbbe
+mapfile -t szavak < "$valami_file"
 
-    # ha nincs találat, menj tovább
-    [[ -z "$match_line" ]] && continue
+# soronként bejárjuk a YAML-t és átírjuk, ha kell
+awk -v szavak="${szavak[*]}" '
+BEGIN {
+    split(szavak, keresett_szavak, " ");
+    keres_mod = 0;
+}
+{
+    # ellenőrizzük, hogy ez egy blokkelem-e (szó szerepel-e a sorban)
+    for (i in keresett_szavak) {
+        if (index($0, keresett_szavak[i]) > 0) {
+            keres_mod = 1;
+            break;
+        }
+    }
 
-    # számold ki a harmadik sor pozícióját
-    target_line=$((match_line + 3))
-
-    # csak akkor módosítsuk, ha azon a soron valóban emailto szerepel
-    current_line=$(sed -n "${target_line}p" "$tmp_file")
-    if [[ "$current_line" == *"emailto:"* ]]; then
-        sed -i "${target_line}s/emailto: .*/emailto: uj@mail.hu/" "$tmp_file"
-    fi
-
-done < "$valami_file"
+    if (keres_mod == 1 && $0 ~ /emailto:/) {
+        print "emailto: uj@mail.hu";
+        keres_mod = 0;
+    } else {
+        print $0;
+    }
+}
+' "$yaml_file" > "$tmp_file"
